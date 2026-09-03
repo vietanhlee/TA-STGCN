@@ -1,0 +1,45 @@
+# =====================================================================
+# TA-STGCN Configuration File
+# Temporal Attention-Guided Spatio-Temporal Graph Convolutional Network
+# =====================================================================
+
+data:
+  csv_path: "count_7_7_merg_sort_fix_fill.csv"
+  adj_path: "Graph_fix_py_3.xlsx"
+  window1: 3
+  window2: 5
+  time_step_minutes: 5
+  history_minutes: 120
+  horizon: 6
+
+model:
+  cheb_K: 3
+  num_blocks: 2
+  block_hidden: 80
+  dropout: 0.25
+  use_temporal_attention: true
+  attn_num_heads: 4
+  attn_dropout: 0.1
+  attn_position: "middle"
+
+training:
+  seed: 42
+  batch_size: 64
+  epochs: 500
+  learning_rate: 0.0005
+  patience: 60
+  grad_clip_norm: 5.0
+  use_lr_scheduler: true
+  lr_sched_factor: 0.5
+  lr_sched_patience: 10
+  lr_sched_min_lr: 0.00001
+  use_ema: true
+  ema_decay: 0.995
+  loss_delta: 1.0
+  smooth_loss_weight: 0.0
+  device: "cuda"
+
+output:
+  save_dir: "checkpoints"
+  log_dir: "logs"
+  plot_dir: "plots"
