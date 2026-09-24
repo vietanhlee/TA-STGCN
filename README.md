@@ -80,7 +80,7 @@ ta_stgcn/
 
 ---
 
-## ⚡ Quick Start & Installation
+## Quick Start & Installation
 
 ### 1. Requirements
 Ensure Python 3.9+ and PyTorch 2.0+ are installed. Install required packages:
@@ -104,7 +104,7 @@ Before starting training, ensure your data files are placed in the root director
 
 ---
 
-## 🏋️ Training the TA-STGCN Model
+## Training the TA-STGCN Model
 
 Run the training pipeline using the default parameters defined in `config.yaml`:
 
@@ -144,7 +144,7 @@ python train.py \
 
 ---
 
-## 📈 Evaluating Saved Checkpoints
+##  Evaluating Saved Checkpoints
 
 To evaluate a trained checkpoint on the test set and print detailed metric breakdowns:
 
