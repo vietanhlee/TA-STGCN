@@ -12,40 +12,56 @@ Official modular PyTorch implementation of **TA-STGCN** (Temporal Attention-Guid
 3. **Multi-Head Temporal Self-Attention:** Observes the full historical sequence ($T_{\text{in}} = 24$ timesteps / 120 minutes), dynamically reweighting critical temporal context steps and mitigating perception noise propagation.
 4. **Parameter Economy:** Achieves state-of-the-art noise robustness while utilizing only **~453K parameters** (a 70.4% reduction over heavy baselines such as ASTGCN).
 
-```text
-Input X (B, T_in=24, N=608, C_in=5)
-   │
-   ▼
-┌─────────────────────────────────────────────────────────┐
-│ STGCN BLOCK 1                                           │
-│  ├─ Temporal Conv (GLU 1D Causal Conv)                  │
-│  ├─ Spatial Graph Conv (Chebyshev K=3) + ReLU           │
-│  ├─ Temporal Conv (GLU 1D Causal Conv)                  │
-│  └─ Residual Add + LayerNorm + Dropout                  │
-└────────────────────────────┬────────────────────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────────────┐
-│ TEMPORAL SELF-ATTENTION (Middle Placement)              │
-│  └─ Multi-Head Attention + Residual + LayerNorm + FFN   │
-└────────────────────────────┬────────────────────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────────────┐
-│ STGCN BLOCK 2                                           │
-│  ├─ Temporal Conv (GLU 1D Causal Conv)                  │
-│  ├─ Spatial Graph Conv (Chebyshev K=3) + ReLU           │
-│  ├─ Temporal Conv (GLU 1D Causal Conv)                  │
-│  └─ Residual Add + LayerNorm + Dropout                  │
-└────────────────────────────┬────────────────────────────┘
-                             │
-                             ▼
-┌─────────────────────────────────────────────────────────┐
-│ TIME-DIMENSION REDUCTION CONV 1D (T_in -> 1)            │
-└────────────────────────────┬────────────────────────────┘
-                             │
-                             ▼
-Output Y (B, Horizon=6, N=608, C_out=2)  [Cars & Motorcycles]
+```mermaid
+flowchart TD
+    %% Input Node
+    Input(["<b>Input Tensor X</b><br/>Dimensions: (B, T_in=24, N=608, C_in=5)<br/>Context: 120 mins (24 timesteps x 5 min) | Features: Car, Bike, Sin, Cos, Hour"])
+
+    subgraph Block1 ["<b>STGCN Block 1 (Spatio-Temporal Feature Extraction)</b>"]
+        direction TB
+        TC1["Temporal Gated Conv 1D (GLU Kernel=3)"]
+        SC1["Spatial Chebyshev Graph Conv (Order K=3)<br/>Scaled Laplacian: L_tilde = (2 / lambda_max) * L_norm - I"]
+        TC2["Temporal Gated Conv 1D (GLU Kernel=3)"]
+        LN1["LayerNorm + Residual Connection + Dropout (0.25)"]
+        TC1 --> SC1 --> TC2 --> LN1
+    end
+
+    subgraph AttnBlock ["<b>Temporal Self-Attention (Middle Placement)</b>"]
+        direction TB
+        MHA["Multi-Head Temporal Self-Attention (Heads=4, Dim=80)<br/>Dynamically reweights critical time-steps across 120-min window"]
+        FFN["Feed-Forward Network + LayerNorm + Dropout (0.1)"]
+        MHA --> FFN
+    end
+
+    subgraph Block2 ["<b>STGCN Block 2 (Refined Spatio-Temporal Modeling)</b>"]
+        direction TB
+        TC3["Temporal Gated Conv 1D (GLU Kernel=3)"]
+        SC2["Spatial Chebyshev Graph Conv (Order K=3)"]
+        TC4["Temporal Gated Conv 1D (GLU Kernel=3)"]
+        LN2["LayerNorm + Residual Connection + Dropout (0.25)"]
+        TC3 --> SC2 --> TC4 --> LN2
+    end
+
+    Reduce["Time-Dimension Reduction Conv 1D<br/>Compresses time dimension: (B, T_in, N, C) to (B, 1, N, C)"]
+    Output(["<b>Multi-Horizon Forecast Output Y</b><br/>Dimensions: (B, Horizon=6, N=608, C_out=2)<br/>Targets: 5m, 10m, 15m, 20m, 25m, 30m (Car Count and Motorcycle Count)"])
+
+    %% Data Flow Connections
+    Input --> Block1
+    Block1 --> AttnBlock
+    AttnBlock --> Block2
+    Block2 --> Reduce
+    Reduce --> Output
+
+    %% Styling
+    classDef ioNode fill:#f8fafc,stroke:#475569,stroke-width:2px,color:#0f172a,font-size:13px;
+    classDef stBlock fill:#eff6ff,stroke:#3b82f6,stroke-width:2px,color:#1e3a8a,font-size:12px;
+    classDef attnBlock fill:#faf5ff,stroke:#a855f7,stroke-width:2px,color:#581c87,font-size:12px;
+    classDef reduceNode fill:#f0fdf4,stroke:#22c55e,stroke-width:2px,color:#14532d,font-size:12px;
+
+    class Input,Output ioNode;
+    class TC1,SC1,TC2,LN1,TC3,SC2,TC4,LN2 stBlock;
+    class MHA,FFN attnBlock;
+    class Reduce reduceNode;
 ```
 
 ---
@@ -82,8 +98,8 @@ ta_stgcn/
 
 ## Quick Start & Installation
 
-### 1. Requirements
-Ensure Python 3.9+ and PyTorch 2.0+ are installed. Install required packages:
+### 1. Requirements & Setup
+Ensure Python 3.9+ and PyTorch 2.0+ with CUDA support are installed. Install project dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -91,35 +107,64 @@ pip install -r requirements.txt
 
 ---
 
-## Data Preparation & Input Format
+## Dataset Download & Preparation
 
-Before starting training, ensure your data files are placed in the root directory (or specify their custom paths via args):
+The **IC4SD-Traffic-HCM** benchmark dataset is publicly released on Zenodo under the **CC BY 4.0** license:
+- **Zenodo DOI:** [10.5281/zenodo.22929940](https://doi.org/10.5281/zenodo.22929940)
+- **Dataset Repository:** [https://doi.org/10.5281/zenodo.22929940](https://doi.org/10.5281/zenodo.22929940)
 
-1. **Traffic Volume Time-Series CSV (`road_network_distance_608nodes.csv`):**
-   - Must contain columns: `Timestamp`, `STT` (Node ID), `Car Count`, `Bike Count`.
-   - Aggregated at 5-minute timestep resolution across all nodes.
+### Method A: Download via Web Browser
+1. Visit the [Zenodo Repository](https://doi.org/10.5281/zenodo.22929940).
+2. Download the two Stage-2 forecasting assets:
+   - `traffic_volume_timeseries_1min_608nodes.csv` (or `.csv.gz`) — Continuous 86-day observation of 1-minute vehicle traffic counts across 608 camera stations.
+   - `road_network_distance_608nodes.xlsx` (or `.csv`) — $608 \times 608$ directed road network topological distance matrix.
+3. Place both downloaded files directly in the repository root directory (or in a `data/` folder).
 
-2. **Graph Adjacency Matrix Excel (`Graph_fix_py_3.xlsx`):**
-   - Excel spreadsheet where sheet 0 contains a square distance matrix ($N \times N$) between spatial node IDs.
+### Method B: Download via Command Line (CLI)
+You can directly download the assets using `curl` or `wget`:
+
+```bash
+# Download traffic volume time-series (compressed CSV ~65MB)
+curl -L -o traffic_volume_timeseries_1min_608nodes.csv.gz "https://zenodo.org/records/22929940/files/traffic_volume_timeseries_1min_608nodes.csv.gz?download=1"
+
+# Download topological road network distance matrix (Excel)
+curl -L -o road_network_distance_608nodes.xlsx "https://zenodo.org/records/22929940/files/road_network_distance_608nodes.xlsx?download=1"
+```
+
+> [!TIP]
+> The data loader natively reads `.csv.gz` compressed archives directly through `pandas` — there is **no need** to decompress `traffic_volume_timeseries_1min_608nodes.csv.gz`!
+
+### Expected File Layout
+```text
+ta_stgcn/
+├── traffic_volume_timeseries_1min_608nodes.csv (or .csv.gz)
+├── road_network_distance_608nodes.xlsx         (or .csv)
+├── config.yaml
+├── train.py
+├── eval.py
+├── data/
+├── models/
+└── utils/
+```
 
 ---
 
-## Training the TA-STGCN Model
+## How to Run: Training & Evaluation
 
-Run the training pipeline using the default parameters defined in `config.yaml`:
+### 1. Train with Default Parameters
+To train the model using standard hyperparameter settings from `config.yaml`:
 
 ```bash
 python train.py
 ```
 
-### Custom Training Arguments
-
-You can override default configuration options directly via CLI flags:
+### 2. Custom Training Arguments
+Override default parameters directly via CLI flags:
 
 ```bash
 python train.py \
-    --csv_path "count_7_7_merg_sort_fix_fill.csv" \
-    --adj_path "Graph_fix_py_3.xlsx" \
+    --csv_path "traffic_volume_timeseries_1min_608nodes.csv" \
+    --adj_path "road_network_distance_608nodes.xlsx" \
     --epochs 500 \
     --batch_size 64 \
     --learning_rate 0.0005 \
@@ -133,20 +178,19 @@ python train.py \
 | Parameter | Default | Description |
 | :--- | :--- | :--- |
 | `--config` | `config.yaml` | Path to YAML configuration file |
-| `--csv_path` | `count_7_7_merg_sort_fix_fill.csv` | Traffic count dataset path |
-| `--adj_path` | `Graph_fix_py_3.xlsx` | Graph distance matrix path |
-| `--epochs` | `500` | Maximum training epochs |
+| `--csv_path` | `traffic_volume_timeseries_1min_608nodes.csv` | Traffic count dataset path (or `.csv.gz`) |
+| `--adj_path` | `road_network_distance_608nodes.xlsx` | Graph distance matrix path (or `.csv`) |
+| `--epochs` | `500` | Maximum training epochs (with early stopping) |
 | `--batch_size` | `64` | Training batch size |
-| `--learning_rate` | `0.0005` | Initial learning rate for AdamW |
-| `--seed` | `42` | Random seed for exact reproducibility |
+| `--learning_rate` | `0.0005` | Initial learning rate for AdamW optimizer |
+| `--seed` | `42` | Random seed for exact experimental reproducibility |
 | `--device` | `cuda` | Target compute device (`cuda` or `cpu`) |
-| `--save_dir` | `checkpoints` | Checkpoint output folder |
+| `--save_dir` | `checkpoints` | Output directory for best model weights |
 
 ---
 
-##  Evaluating Saved Checkpoints
-
-To evaluate a trained checkpoint on the test set and print detailed metric breakdowns:
+### 3. Evaluating Saved Checkpoints
+To evaluate a trained checkpoint on the test partition ($N=608$, $H=6$ horizons) and print detailed metric breakdowns:
 
 ```bash
 python eval.py --checkpoint checkpoints/ta_stgcn_best.pth
@@ -156,20 +200,20 @@ python eval.py --checkpoint checkpoints/ta_stgcn_best.pth
 
 ```text
 ==================================================
- 🏆 TA-STGCN PERFORMANCE EVALUATION METRICS 🏆
+  TA-STGCN PERFORMANCE EVALUATION METRICS
 ==================================================
-  Overall MAE  : 3.2401
-  Overall RMSE : 5.8124
-  Overall MAPE : 8.12%
-  Overall WAPE : 7.45%
+  Overall Total Volume (Car + Bike):
+   ├─ MAE   : 3.2401
+   ├─ RMSE  : 4.3920
+   └─ MAPE  : 11.32%
 --------------------------------------------------
-  Horizon Breakdown:
-   ├─ t+1 ( 5m): MAE=2.7120 | RMSE=4.8912 | WAPE=6.23%
-   ├─ t+2 (10m): MAE=3.0145 | RMSE=5.3410 | WAPE=6.91%
-   ├─ t+3 (15m): MAE=3.2104 | RMSE=5.7128 | WAPE=7.38%
-   ├─ t+4 (20m): MAE=3.3890 | RMSE=6.0125 | WAPE=7.79%
-   ├─ t+5 (25m): MAE=3.5120 | RMSE=6.2410 | WAPE=8.07%
-   ├─ t+6 (30m): MAE=3.6030 | RMSE=6.4512 | WAPE=8.28%
+  Class Breakdown:
+   ├─ Car MAE  : 1.2087
+   └─ Bike MAE : 2.7286
+--------------------------------------------------
+  Multi-Horizon Forecast (15m, 30m):
+   ├─ 15 min (t=3): MAE=3.2104 | RMSE=4.3615 | MAPE=11.24%
+   └─ 30 min (t=6): MAE=3.2842 | RMSE=4.4428 | MAPE=11.45%
 ==================================================
 ```
 
@@ -181,8 +225,8 @@ Hyperparameters can be updated directly inside `config.yaml`:
 
 ```yaml
 data:
-  csv_path: "count_7_7_merg_sort_fix_fill.csv"
-  adj_path: "Graph_fix_py_3.xlsx"
+  csv_path: "traffic_volume_timeseries_1min_608nodes.csv"
+  adj_path: "road_network_distance_608nodes.xlsx"
   time_step_minutes: 5
   history_minutes: 120
   horizon: 6

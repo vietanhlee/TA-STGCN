@@ -2,17 +2,20 @@ import numpy as np
 import pandas as pd
 
 
-def load_adj_from_excel(excel_path: str):
+def load_adj_from_excel(path: str):
     """
-    Loads spatial adjacency distance matrix from Excel file.
+    Loads spatial adjacency distance matrix from Excel (.xlsx) or CSV (.csv) file.
     
     Args:
-        excel_path (str): Path to Excel file containing distance matrix.
+        path (str): Path to Excel or CSV file containing distance matrix.
 
     Returns:
         tuple: (weight_matrix, list_of_node_ids)
     """
-    df = pd.read_excel(excel_path, sheet_name=0, index_col=0)
+    if str(path).lower().endswith('.csv'):
+        df = pd.read_csv(path, index_col=0)
+    else:
+        df = pd.read_excel(path, sheet_name=0, index_col=0)
     mat = df.apply(pd.to_numeric, errors='coerce').fillna(0).to_numpy(dtype=float)
     nonzero = mat[mat > 0]
     sigma = nonzero.mean() if nonzero.size > 0 else 1.0

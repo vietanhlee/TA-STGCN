@@ -488,37 +488,6 @@
             text-align: center;
         }
 
-        /* BIBTEX CODE */
-        .bibtex-box {
-            position: relative;
-            background: #0f172a;
-            color: #f8fafc;
-            border-radius: 8px;
-            padding: 20px;
-            font-family: var(--font-code);
-            font-size: 0.85rem;
-            overflow-x: auto;
-            margin-top: 16px;
-        }
-
-        .btn-copy-bib {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: #334155;
-            color: #ffffff;
-            border: 1px solid #475569;
-            padding: 4px 10px;
-            border-radius: 5px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-copy-bib:hover {
-            background: var(--primary-blue);
-            border-color: var(--primary-blue);
-        }
 
         /* FOOTER */
         footer {
@@ -549,7 +518,7 @@
     <header class="hero">
         <div class="container">
             <div class="venue-badge">
-                Computers & Electrical Engineering 139 (2026) 111455
+                Engineering Applications of Artificial Intelligence (EAAI) &bull; Under Review
             </div>
 
             <h1 class="paper-title">
@@ -790,102 +759,116 @@
                             <th>MAE Overall</th>
                             <th>RMSE</th>
                             <th>MAPE (%)</th>
-                            <th>WAPE (%)</th>
                             <th>MAE t+1 (5m)</th>
+                            <th>MAE t+3 (15m)</th>
                             <th>MAE t+6 (30m)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>STGCN (Yu et al. IJCAI 2018)</td>
-                            <td>375,212</td>
-                            <td>4,837 MB</td>
-                            <td>3.2695 ± 0.012</td>
-                            <td>5.8612</td>
-                            <td>8.24%</td>
-                            <td>7.52%</td>
-                            <td>2.7351</td>
-                            <td>3.6410</td>
+                            <td>STGCN Baseline (Yu et al. IJCAI 2018)</td>
+                            <td>375K</td>
+                            <td>4,838 MB</td>
+                            <td>3.2703 ± 0.013</td>
+                            <td>4.4245</td>
+                            <td>11.44%</td>
+                            <td>2.8430</td>
+                            <td>3.2787</td>
+                            <td>3.5350</td>
+                        </tr>
+                        <tr>
+                            <td>STGCN (Large)</td>
+                            <td>487K</td>
+                            <td>5,794 MB</td>
+                            <td>3.2805 ± 0.013</td>
+                            <td>4.4354</td>
+                            <td>11.53%</td>
+                            <td>2.8498</td>
+                            <td>3.2861</td>
+                            <td>3.5497</td>
                         </tr>
                         <tr>
                             <td>GraphWaveNet (Wu et al. IJCAI 2019)</td>
-                            <td>548,620</td>
+                            <td>549K</td>
                             <td>7,731 MB</td>
-                            <td>3.2510 ± 0.009</td>
-                            <td>5.8240</td>
-                            <td>8.18%</td>
-                            <td>7.48%</td>
-                            <td>2.7210</td>
-                            <td>3.6180</td>
+                            <td>3.2776 ± 0.005</td>
+                            <td>4.4486</td>
+                            <td>11.43%</td>
+                            <td>2.8142</td>
+                            <td>3.2727</td>
+                            <td>3.5800</td>
                         </tr>
                         <tr>
                             <td>ASTGCN (Guo et al. AAAI 2019)</td>
-                            <td>1,532,566</td>
-                            <td>9,260 MB</td>
-                            <td>3.2750 ± 0.015</td>
-                            <td>5.8890</td>
-                            <td>8.31%</td>
-                            <td>7.56%</td>
-                            <td>2.7410</td>
-                            <td>3.6520</td>
-                        </tr>
-                        <tr>
-                            <td>DSTAGNN (Lan et al. ICDE 2022)</td>
-                            <td>910,796</td>
-                            <td>9,801 MB</td>
-                            <td>3.2610 ± 0.011</td>
-                            <td>5.8450</td>
-                            <td>8.21%</td>
-                            <td>7.50%</td>
-                            <td>2.7290</td>
-                            <td>3.6290</td>
-                        </tr>
-                        <tr>
-                            <td>MegaCRN (Jiang et al. KDD 2023)</td>
-                            <td>527,402</td>
-                            <td>4,850 MB</td>
-                            <td>3.2580 ± 0.010</td>
-                            <td>5.8390</td>
-                            <td>8.19%</td>
-                            <td>7.49%</td>
-                            <td>2.7250</td>
-                            <td>3.6250</td>
+                            <td>1,533K</td>
+                            <td>9,261 MB</td>
+                            <td>3.4218 ± 0.012</td>
+                            <td>4.6509</td>
+                            <td>11.78%</td>
+                            <td>2.9876</td>
+                            <td>3.4296</td>
+                            <td>3.6984</td>
                         </tr>
                         <tr>
                             <td>STAEformer (Liu et al. CIKM 2023)</td>
-                            <td>568,492</td>
+                            <td>568K</td>
                             <td>11,509 MB</td>
-                            <td>3.2420 ± 0.008</td>
-                            <td>5.8150</td>
-                            <td>8.14%</td>
-                            <td>7.46%</td>
-                            <td>2.7140</td>
-                            <td>3.6080</td>
+                            <td>3.2953 ± 0.018</td>
+                            <td>4.4555</td>
+                            <td>11.51%</td>
+                            <td>2.8324</td>
+                            <td>3.2924</td>
+                            <td>3.5937</td>
+                        </tr>
+                        <tr>
+                            <td>MegaCRN (Jiang et al. KDD 2023)</td>
+                            <td>527K</td>
+                            <td>4,850 MB</td>
+                            <td>3.3433 ± 0.011</td>
+                            <td>4.5580</td>
+                            <td>11.55%</td>
+                            <td>2.8436</td>
+                            <td>3.3434</td>
+                            <td>3.6660</td>
+                        </tr>
+                        <tr>
+                            <td>DSTAGNN (Lan et al. ICDE 2022)</td>
+                            <td>911K</td>
+                            <td>9,802 MB</td>
+                            <td>3.3457 ± 0.017</td>
+                            <td>4.5499</td>
+                            <td>11.69%</td>
+                            <td>2.8447</td>
+                            <td>3.3373</td>
+                            <td>3.6729</td>
                         </tr>
                         <tr>
                             <td>iTransformer (Liu et al. ICLR 2024)</td>
-                            <td>149,516</td>
+                            <td>150K</td>
                             <td>265 MB</td>
-                            <td>3.2480 ± 0.007</td>
-                            <td>5.8210</td>
-                            <td>8.15%</td>
-                            <td>7.47%</td>
-                            <td>2.7190</td>
-                            <td>3.6140</td>
+                            <td>3.3720 ± 0.014</td>
+                            <td>4.5832</td>
+                            <td>11.65%</td>
+                            <td>2.8613</td>
+                            <td>3.3613</td>
+                            <td>3.7205</td>
                         </tr>
                         <tr class="row-ours">
                             <td>TA-STGCN <span class="tag-ours">Ours</span></td>
-                            <td>453,052</td>
-                            <td>8,606 MB</td>
-                            <td>3.2401 ± 0.010</td>
-                            <td>5.8124</td>
-                            <td>8.12%</td>
-                            <td>7.45%</td>
-                            <td>2.7120</td>
-                            <td>3.6030</td>
+                            <td>453K</td>
+                            <td>8,607 MB</td>
+                            <td><strong>3.2401 ± 0.011</strong></td>
+                            <td><strong>4.3920</strong></td>
+                            <td><strong>11.32%</strong></td>
+                            <td><strong>2.8346</strong></td>
+                            <td><strong>3.2430</strong></td>
+                            <td><strong>3.4947</strong></td>
                         </tr>
                     </tbody>
                 </table>
+                <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 8px; text-align: right;">
+                    <em>* Note: Overall metrics evaluate aggregate total traffic volume ($y^{\text{total}} = y^{\text{car}} + y^{\text{bike}}$) averaged across 5 independent seeds.</em>
+                </p>
             </div>
         </section>
 
@@ -996,26 +979,6 @@
             </div>
         </section>
 
-        <!-- BIBTEX CITATION -->
-        <section id="citation">
-            <h2 class="section-heading"><i class="fa-solid fa-quote-right"></i> BibTeX Citation</h2>
-            <p class="text-body" style="margin-bottom: 8px;">If you find our benchmark, dataset, or TA-STGCN
-                architecture useful in your research, please consider citing our paper:</p>
-
-            <div class="bibtex-box">
-                <button class="btn-copy-bib" onclick="copyBib()"><i class="fa-regular fa-copy"></i> Copy</button>
-                <pre><code id="bib-content">@article{le2026urbantraffic,
-  title={Urban Traffic Perception and Multi-Horizon Graph Forecasting: A Two-Stage Camera-Sensed Framework},
-  author={Le, Viet-Anh and Viet, Dung Hoang and Nguyen-Trong, Khanh},
-  journal={Computers and Electrical Engineering},
-  volume={139},
-  pages={111455},
-  year={2026},
-  publisher={Elsevier},
-  doi={10.1016/j.compeleceng.2026.111455}
-}</code></pre>
-            </div>
-        </section>
 
     </div>
 
@@ -1038,17 +1001,6 @@
     </div>
 
     <script>
-        function copyBib() {
-            const text = document.getElementById('bib-content').innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = document.querySelector('.btn-copy-bib');
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
-                setTimeout(() => {
-                    btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy';
-                }, 2000);
-            });
-        }
-
         // Lightbox Zoom Logic
         document.querySelectorAll('.teaser-img').forEach(img => {
             img.addEventListener('click', function (e) {

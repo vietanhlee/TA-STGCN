@@ -4,8 +4,8 @@
 # =====================================================================
 
 data:
-  csv_path: "count_7_7_merg_sort_fix_fill.csv"
-  adj_path: "Graph_fix_py_3.xlsx"
+  csv_path: "traffic_volume_timeseries_1min_608nodes.csv"
+  adj_path: "road_network_distance_608nodes.xlsx"
   window1: 3
   window2: 5
   time_step_minutes: 5

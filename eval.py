@@ -40,14 +40,16 @@ def main():
     ckpt_config = checkpoint.get('config', {})
     scaler = checkpoint.get('scaler')
     nodes = checkpoint.get('nodes')
+    csv_path = args.csv_path or ckpt_config.get("data", {}).get("csv_path", "traffic_volume_timeseries_1min_608nodes.csv")
+    adj_path = args.adj_path or ckpt_config.get("data", {}).get("adj_path", "road_network_distance_608nodes.xlsx")
 
-    csv_path = args.csv_path or ckpt_config.get("data", {}).get("csv_path", "count_7_7_merg_sort_fix_fill.csv")
-    adj_path = args.adj_path or ckpt_config.get("data", {}).get("adj_path", "Graph_fix_py_3.xlsx")
+    if not os.path.exists(csv_path) and os.path.exists(csv_path + ".gz"):
+        csv_path = csv_path + ".gz"
 
     if not os.path.exists(adj_path):
-        raise FileNotFoundError(f"Adjacency matrix file not found: {adj_path}")
+        raise FileNotFoundError(f"Adjacency matrix file not found: '{adj_path}'")
     if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"Traffic count CSV file not found: {csv_path}")
+        raise FileNotFoundError(f"Traffic count CSV file not found: '{csv_path}'")
 
     # Reconstruct Graph Laplacian
     A_raw, node_ids = load_adj_from_excel(adj_path)

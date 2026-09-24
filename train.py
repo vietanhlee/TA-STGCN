@@ -173,8 +173,12 @@ def main():
             cfg_dict = yaml.safe_load(f)
 
     # Merge CLI arguments over YAML config
-    csv_path = args.csv_path or cfg_dict.get("data", {}).get("csv_path", "count_7_7_merg_sort_fix_fill.csv")
-    adj_path = args.adj_path or cfg_dict.get("data", {}).get("adj_path", "Graph_fix_py_3.xlsx")
+    csv_path = args.csv_path or cfg_dict.get("data", {}).get("csv_path", "traffic_volume_timeseries_1min_608nodes.csv")
+    adj_path = args.adj_path or cfg_dict.get("data", {}).get("adj_path", "road_network_distance_608nodes.xlsx")
+
+    if not os.path.exists(csv_path) and os.path.exists(csv_path + ".gz"):
+        csv_path = csv_path + ".gz"
+
     epochs = args.epochs or cfg_dict.get("training", {}).get("epochs", 500)
     batch_size = args.batch_size or cfg_dict.get("training", {}).get("batch_size", 64)
     learning_rate = args.learning_rate or cfg_dict.get("training", {}).get("learning_rate", 0.0005)
@@ -198,16 +202,16 @@ def main():
     print(f" Device          : {device}")
     print(f" Seed            : {seed}")
     print(f" Data CSV        : {csv_path}")
-    print(f" Graph Excel     : {adj_path}")
+    print(f" Graph Matrix    : {adj_path}")
     print(f" Epochs          : {epochs}")
     print(f" Batch Size      : {batch_size}")
     print(f" Learning Rate   : {learning_rate}")
     print("=" * 60 + "\n")
 
     if not os.path.exists(adj_path):
-        raise FileNotFoundError(f"Adjacency matrix file not found: {adj_path}")
+        raise FileNotFoundError(f"Adjacency matrix file not found: '{adj_path}'")
     if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"Traffic count CSV file not found: {csv_path}")
+        raise FileNotFoundError(f"Traffic count CSV file not found: '{csv_path}'")
 
     # Build Graph & Laplacian
     A_raw, nodes = load_adj_from_excel(adj_path)

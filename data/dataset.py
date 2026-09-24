@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 import torch
@@ -42,6 +43,8 @@ def load_timeseries_double_rolling(
     Returns:
         pd.DataFrame: MultiIndex pivoted DataFrame of shape (Timesteps, Nodes * Features).
     """
+    if not os.path.exists(csv_path) and os.path.exists(csv_path + ".gz"):
+        csv_path = csv_path + ".gz"
     print(f"   Reading CSV: {csv_path}...")
     df = pd.read_csv(csv_path)
     df['Timestamp'] = pd.to_datetime(df['Timestamp'], errors='coerce')
