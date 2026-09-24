@@ -95,7 +95,7 @@ pip install -r requirements.txt
 
 Before starting training, ensure your data files are placed in the root directory (or specify their custom paths via args):
 
-1. **Traffic Volume Time-Series CSV (`count_7_7_merg_sort_fix_fill.csv`):**
+1. **Traffic Volume Time-Series CSV (`road_network_distance_608nodes.csv`):**
    - Must contain columns: `Timestamp`, `STT` (Node ID), `Car Count`, `Bike Count`.
    - Aggregated at 5-minute timestep resolution across all nodes.
 
